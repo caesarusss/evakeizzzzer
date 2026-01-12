@@ -435,11 +435,42 @@ class ProjectView {
     this.cards = document.querySelectorAll('.card');
     this.isProjectOpen = false;
     
+    this.specialProjects = {
+      'mindplug': this.setupMindplugProject.bind(this),
+      'song poster': this.setupSongPosterProject.bind(this),
+      'vintage': this.setupVintageProject.bind(this),
+      'music zine': this.setupMusicZineProject.bind(this),
+      'terracotta': this.setupTerracottaProject.bind(this),
+      'a calendar for korean laboring folks': this.setupCalendarProject.bind(this)
+    };
+    
+    this.projectTexts = {
+      'a calendar for korean laboring folks': `
+        <strong>A calendar for Korean laboring folks</strong> — календарь для корейских работяг с акцентом на выходные и гос. праздники. в комплект идет пак наклеек для внеплановых выходных.
+        <br><br>
+        ода не сочетающимся цветам и съехавшей типографике, обусловленные азиатским контекстом.
+      `,
+      'song poster': null,
+      'vintage': `
+        приложение-гид по винтажному сообществу. здесь пользователь узнает о главных новостях и фактах, совершает сделки, записывается на аукционы и отслеживает свой прогресс продвижения в винтажной культуре.
+      `,
+      'mindplug': `
+        <a href="https://caesarusss.github.io/poster_code/">website link</a>
+        <br>
+        <br> mindplug — радио, проигрывающее разноформатные звуки. помогает людям <br> с силенсофобией и бессонницей. сайт раскрывает айдентику продукта.
+      `,
+      'terracotta': `
+        <a href="https://www.figma.com/proto/RIplRLIAGAqrtVNZv0URjJ/terracotta?node-id=1-11&t=zYa2wHKGLHNnCxqJ-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A11">prototype link</a>
+        <br>
+        <br> сайт для уютной гончарной мастерской.
+      `,
+      'music zine': null
+    };
+    
     this.init();
   }
   
   init() {
-    // Клик по карточке
     this.cards.forEach(card => {
       card.addEventListener('click', (e) => {
         if (this.isProjectOpen) return;
@@ -447,13 +478,11 @@ class ProjectView {
       });
     });
     
-    // Кнопка возврата
     this.goBackBtn.addEventListener('click', (e) => {
       e.preventDefault();
       this.closeProject();
     });
     
-    // Закрытие по ESC
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && this.isProjectOpen) {
         this.closeProject();
@@ -461,561 +490,308 @@ class ProjectView {
     });
   }
   
-// В методе openProject добавляем проверку для terracotta:
-openProject(e) {
-  const card = e.currentTarget;
-  const cardImage = card.querySelector('img');
-  const cardTitle = card.querySelector('.text').textContent.trim().toLowerCase();
-  
-  // Останавливаем автоскролл
-  if (window.smoothCursorInstance) {
-    window.smoothCursorInstance.autoScrollEnabled = false;
-  }
-  
-  // Показываем проект, скрываем карточки
-  this.projectContent.classList.add('active');
-  this.contentGrid.style.opacity = '0';
+  openProject(e) {
+    const card = e.currentTarget;
+    const cardImage = card.querySelector('img');
+    const cardTitle = card.querySelector('.text').textContent.trim().toLowerCase();
+    
+    if (window.smoothCursorInstance) {
+      window.smoothCursorInstance.autoScrollEnabled = false;
+    }
+    
+    this.projectContent.classList.add('active');
+    this.contentGrid.style.opacity = '0';
     this.contentGrid.style.visibility = 'hidden';
-  this.isProjectOpen = true;
-  
-  // Обновляем данные проекта
-  this.updateProjectData(cardImage.src, cardTitle);
-  
-  // СПЕЦИАЛЬНЫЕ СЛУЧАИ ДЛЯ ПРОЕКТОВ
-  if (cardTitle === 'mindplug') {
-    this.setupMindplugProject();
-  } else if (cardTitle === 'song poster') {
-    this.setupSongPosterProject();
-  } else if (cardTitle === 'vintage') {
-    this.setupVintageProject();
-  } else if (cardTitle === 'music zine') {
-    this.setupMusicZineProject();
-  } else if (cardTitle === 'terracotta') {
-    this.setupTerracottaProject();
-  } else if (cardTitle === 'a calendar for korean laboring folks') {
-    this.setupCalendarProject();
-  } else {
-    this.setupRegularProject();
-  }
-  
-  // Обновляем позицию кнопки после загрузки контента
-  setTimeout(() => {
-    this.updateButtonPosition();
-  }, 50);
-}
-
-closeProject() {
-  // Сбрасываем специальные настройки для специальных проектов
-  if (this.projectContent.classList.contains('mindplug-project')) {
-    this.setupRegularProject();
-    this.projectContent.classList.remove('mindplug-project');
-  }
-  
-  if (this.projectContent.classList.contains('song-poster-project')) {
-    this.setupRegularProject();
-    this.projectContent.classList.remove('song-poster-project');
-  }
-  
-  if (this.projectContent.classList.contains('vintage-project')) {
-    this.setupRegularProject();
-    this.projectContent.classList.remove('vintage-project');
-  }
-  
-  if (this.projectContent.classList.contains('music-zine-project')) {
-    this.setupRegularProject();
-    this.projectContent.classList.remove('music-zine-project');
-  }
-  
-  if (this.projectContent.classList.contains('terracotta-project')) {
-    this.setupRegularProject();
-    this.projectContent.classList.remove('terracotta-project');
-  }
-
-  if (this.projectContent.classList.contains('calendar-project')) {
-    this.setupRegularProject();
-    this.projectContent.classList.remove('calendar-project');
-  }
-  
-  // Скрываем проект, показываем карточки
-  this.projectContent.classList.remove('active');
-  this.contentGrid.style.opacity = '1';
-  this.contentGrid.style.visibility = 'visible';
-  this.isProjectOpen = false;
-  
-  // Возвращаем скролл в начало
-  this.contentGrid.scrollTop = 0;
-  
-  // Восстанавливаем автоскролл через секунду
-  setTimeout(() => {
-    if (window.smoothCursorInstance && !window.smoothCursorInstance.userHasScrolled) {
-      window.smoothCursorInstance.autoScrollEnabled = true;
-    }
-  }, 1000);
-}
-
-setupCalendarProject() {
-  // Добавляем специальный класс для проекта calendar
-  this.projectContent.classList.add('calendar-project');
-  
-  // Получаем основные контейнеры
-  const leftColumn = this.projectContent.querySelector('.project-left-column');
-  const largeImgContainer = this.projectContent.querySelector('.project-large-img');
-  const projectWrapper = this.projectContent.querySelector('.project-wrapper');
-  const bottomContainer = this.projectContent.querySelector('.project-bottom-container');
-  const projectTextBlock = document.querySelector('.project-text-block');
-  const morePhotos = this.projectContent.querySelector('.more-photos');
-  const projectGoBack = this.projectContent.querySelector('.project-go-back');
-  
-  // Сохраняем исходный HTML на случай возврата
-  if (projectWrapper && !projectWrapper.dataset.originalHtml) {
-    projectWrapper.dataset.originalHtml = projectWrapper.innerHTML;
-  }
-  
-  leftColumn.dataset.originalHtml = leftColumn.innerHTML;
-  largeImgContainer.dataset.originalHtml = largeImgContainer.innerHTML;
-  projectTextBlock.dataset.originalDisplay = projectTextBlock.style.display;
-  morePhotos.dataset.originalText = morePhotos.innerHTML;
-  bottomContainer.dataset.originalDisplay = bottomContainer.style.display;
-  
-  // СОЗДАЕМ ВИДЕО ВМЕСТО БОЛЬШОГО ИЗОБРАЖЕНИЯ
-  const videoContainer = document.createElement('div');
-  videoContainer.className = 'calendar-video-container';
-  videoContainer.style.width = '100%';
-  videoContainer.style.height = '100%';
-  videoContainer.style.overflow = 'hidden';
-  
-  const video = document.createElement('video');
-  video.src = 'assets/images/calendar.mp4';
-  video.alt = 'Calendar for Korean laboring folks animation';
-  video.style.width = '100%';
-  video.style.height = '100%';
-  video.style.objectFit = 'cover';
-  video.style.display = 'block';
-  video.loop = true;
-  video.muted = true;
-  video.autoplay = true;
-  video.playsInline = true;
-  video.currentTime = 0;
-  
-  videoContainer.appendChild(video);
-  
-  // Заменяем большое изображение на видео
-  largeImgContainer.innerHTML = '';
-  largeImgContainer.appendChild(videoContainer);
-  
-  // ВИДИМ ТОЛЬКО 2 МАЛЕНЬКИЕ ФОТОГРАФИИ
-  const smallImages = leftColumn.querySelectorAll('.project-small-img');
-  
-  // Удаляем все маленькие изображения кроме первых двух
-  for (let i = smallImages.length - 1; i >= 2; i--) {
-    smallImages[i].remove();
-  }
-  
-  // Обновляем существующие 2 маленькие изображения
-  const updatedSmallImages = leftColumn.querySelectorAll('.project-small-img img');
-  if (updatedSmallImages.length >= 2) {
-    updatedSmallImages[0].src = 'assets/images/calendar_small_1.jpg';
-    updatedSmallImages[0].alt = 'Calendar detail 1';
+    this.isProjectOpen = true;
     
-    updatedSmallImages[1].src = 'assets/images/calendar_small_2.jpg';
-    updatedSmallImages[1].alt = 'Calendar detail 2';
-  }
-  
-  // Обновляем текст кнопки "more photos"
-  if (morePhotos) {
-    const span = morePhotos.querySelector('span');
-    if (span) {
-      span.textContent = '4 more photos'; // Всего 6 фото: 2 маленьких показано + 4 в галерее
+    this.updateProjectData(cardImage.src, cardTitle);
+    
+    // Определяем тип проекта
+    if (this.specialProjects[cardTitle]) {
+      this.specialProjects[cardTitle]();
     } else {
-      morePhotos.innerHTML = '<span>4 more photos</span>';
-    }
-  }
-  
-  // ПОКАЗЫВАЕМ текстовый блок
-  projectTextBlock.style.display = 'block';
-  
-  // Скрываем нижний контейнер (кнопки будут позиционироваться отдельно)
-  bottomContainer.style.display = 'none';
-  
-  // Перемещаем кнопки из нижнего контейнера прямо в project-wrapper
-  morePhotos.parentNode.removeChild(morePhotos);
-  projectGoBack.parentNode.removeChild(projectGoBack);
-  
-  // Добавляем обратно в project-wrapper
-  projectWrapper.appendChild(morePhotos);
-  projectWrapper.appendChild(projectGoBack);
-  
-  // Устанавливаем абсолютное позиционирование для десктопной версии
-  if (window.innerWidth > 767) {
-    projectWrapper.style.position = 'relative';
-    
-    // Стили для "4 more photos"
-    morePhotos.style.position = 'absolute';
-    morePhotos.style.left = '0';
-    morePhotos.style.top = '595px'; // Высота видео
-    morePhotos.style.marginTop = '32px';
-    morePhotos.style.zIndex = '2';
-    
-    // Стили для "go back"
-    projectGoBack.style.position = 'absolute';
-    projectGoBack.style.left = '247px'; // 235px + 12px - начало видео
-    projectGoBack.style.top = '607px'; // 595px + 32px + 12px
-    projectGoBack.style.marginTop = '0';
-    projectGoBack.style.zIndex = '2';
-  }
-  
-  // Для адаптивности на мобильных
-  this.adaptCalendarForMobile();
-}
-
-// Добавляем метод адаптации для calendar:
-adaptCalendarForMobile() {
-  const projectWrapper = this.projectContent.querySelector('.project-wrapper');
-  const morePhotos = this.projectContent.querySelector('.more-photos');
-  const projectGoBack = this.projectContent.querySelector('.project-go-back');
-  
-  if (window.innerWidth <= 767) {
-    // На мобильных - флекс-контейнер для кнопок
-    if (projectWrapper) {
-      projectWrapper.style.position = 'static';
+      this.setupRegularProject();
     }
     
-    if (morePhotos) {
-      morePhotos.style.cssText = '';
-      morePhotos.style.marginTop = '20px';
-      morePhotos.style.order = '1';
-      morePhotos.style.alignSelf = 'flex-start';
-    }
+    this.reinitializeGallery();
+    setTimeout(() => this.updateButtonPosition(), 50);
+  }
+  
+  closeProject() {
+    const specialClasses = [
+      'mindplug-project', 'song-poster-project', 'vintage-project',
+      'music-zine-project', 'terracotta-project', 'calendar-project'
+    ];
     
-    if (projectGoBack) {
-      projectGoBack.style.cssText = '';
-      projectGoBack.style.marginTop = '12px';
-      projectGoBack.style.order = '2';
-      projectGoBack.style.alignSelf = 'flex-start';
-    }
-  } else {
-    if (projectWrapper) {
-      projectWrapper.style.position = 'relative';
-    }
-  }
-}
-
-// Добавляем новый метод для проекта terracotta:
-setupTerracottaProject() {
-  // Добавляем специальный класс для проекта terracotta
-  this.projectContent.classList.add('terracotta-project');
-  
-  // Получаем контейнер для левой колонки
-  const leftColumn = this.projectContent.querySelector('.project-left-column');
-  const largeImgContainer = this.projectContent.querySelector('.project-large-img');
-  const projectWrapper = this.projectContent.querySelector('.project-wrapper');
-  
-  // Сохраняем исходный HTML на случай возврата
-  if (projectWrapper && !projectWrapper.dataset.originalHtml) {
-    projectWrapper.dataset.originalHtml = projectWrapper.innerHTML;
+    specialClasses.forEach(className => {
+      if (this.projectContent.classList.contains(className)) {
+        this.setupRegularProject();
+        this.projectContent.classList.remove(className);
+      }
+    });
+    
+    this.projectContent.classList.remove('active');
+    this.contentGrid.style.opacity = '1';
+    this.contentGrid.style.visibility = 'visible';
+    this.isProjectOpen = false;
+    this.contentGrid.scrollTop = 0;
+    
+    setTimeout(() => {
+      if (window.smoothCursorInstance && !window.smoothCursorInstance.userHasScrolled) {
+        window.smoothCursorInstance.autoScrollEnabled = true;
+      }
+    }, 1000);
   }
   
-  leftColumn.dataset.originalHtml = leftColumn.innerHTML;
-  largeImgContainer.dataset.originalHtml = largeImgContainer.innerHTML;
-  
-  // Очищаем левую колонку и делаем её контейнером для видео
-  leftColumn.innerHTML = '';
-  leftColumn.style.gridColumn = '1 / span 3';
-  leftColumn.style.width = '977px';
-  leftColumn.style.height = '595px';
-  
-  const videoContainer = document.createElement('div');
-  videoContainer.className = 'project-video-container';
-  videoContainer.style.width = '100%';
-  videoContainer.style.height = '100%';
-  videoContainer.style.overflow = 'hidden';
-  
-  // Создаем видео элемент
-  const video = document.createElement('video');
-  video.src = 'assets/images/terracotta.mp4'; // Путь к видео
-  video.alt = 'Terracotta pottery studio website';
-  video.style.width = '100%';
-  video.style.height = '100%';
-  video.style.objectFit = 'cover';
-  video.style.display = 'block';
-  video.loop = true;
-  video.muted = true;
-  video.autoplay = true;
-  video.playsInline = true;
-  video.currentTime = 0;
-  
-  videoContainer.appendChild(video);
-  leftColumn.appendChild(videoContainer);
-  
-  // Скрываем правую колонку с большим изображением
-  largeImgContainer.style.display = 'none';
-  
-  // Скрываем кнопку "12 more photos"
-  const morePhotos = this.projectContent.querySelector('.more-photos');
-  if (morePhotos) morePhotos.style.display = 'none';
-  
-  // Для адаптивности на мобильных
-  this.adaptTerracottaForMobile();
-}
-
-// Добавляем метод адаптации для terracotta:
-adaptTerracottaForMobile() {
-  // На мобильных устройствах адаптируем видео
-  if (window.innerWidth <= 767) {
-    const leftColumn = this.projectContent.querySelector('.project-left-column');
-    if (leftColumn) {
-      leftColumn.style.gridColumn = '1';
-      leftColumn.style.width = '100%';
-      leftColumn.style.height = 'auto';
-      leftColumn.style.aspectRatio = '977 / 595';
-    }
+  setupCalendarProject() {
+    this.projectContent.classList.add('calendar-project');
+    
+    const elements = this.getProjectElements();
+    this.saveOriginalState(elements);
+    
+    // Создаем видео
+    const videoContainer = this.createVideoContainer('assets/images/calendar.mp4', 'Calendar for Korean laboring folks animation');
+    elements.largeImgContainer.innerHTML = '';
+    elements.largeImgContainer.appendChild(videoContainer);
+    
+    // Оставляем только 2 маленьких фото
+    this.limitSmallImages(elements.leftColumn, 2);
+    this.updateSmallImages(elements.leftColumn, [
+      { src: 'assets/images/calendar_small_1.jpg', alt: 'Calendar detail 1' },
+      { src: 'assets/images/calendar_small_2.jpg', alt: 'Calendar detail 2' }
+    ]);
+    
+    // Настраиваем интерфейс
+    this.updateMorePhotosText(elements.morePhotos, '4 more photos');
+    elements.projectTextBlock.style.display = 'block';
+    elements.bottomContainer.style.display = 'none';
+    
+    this.repositionButtons(elements.projectWrapper, elements.morePhotos, elements.projectGoBack, 595);
+    this.adaptCalendarForMobile(elements);
   }
-}
-
+  
+  setupTerracottaProject() {
+    this.projectContent.classList.add('terracotta-project');
+    
+    const elements = this.getProjectElements();
+    this.saveOriginalState(elements);
+    
+    // Создаем видео в левой колонке
+    const videoContainer = this.createVideoContainer('assets/images/terracotta.mp4', 'Terracotta pottery studio website');
+    elements.leftColumn.innerHTML = '';
+    elements.leftColumn.style.gridColumn = '1 / span 3';
+    elements.leftColumn.style.width = '977px';
+    elements.leftColumn.style.height = '595px';
+    elements.leftColumn.appendChild(videoContainer);
+    
+    // Скрываем неиспользуемые элементы
+    elements.largeImgContainer.style.display = 'none';
+    if (elements.morePhotos) elements.morePhotos.style.display = 'none';
+    
+    this.adaptForMobile(elements.leftColumn, 'terracotta');
+  }
+  
   setupMusicZineProject() {
-    // Добавляем специальный класс для проекта music zine
     this.projectContent.classList.add('music-zine-project');
     
-    // Получаем основные контейнеры
-    const leftColumn = this.projectContent.querySelector('.project-left-column');
-    const largeImgContainer = this.projectContent.querySelector('.project-large-img');
-    const projectWrapper = this.projectContent.querySelector('.project-wrapper');
-    const bottomContainer = this.projectContent.querySelector('.project-bottom-container');
-    const projectTextBlock = this.projectContent.querySelector('.project-text-block');
-    const morePhotos = this.projectContent.querySelector('.more-photos');
-    const projectGoBack = this.projectContent.querySelector('.project-go-back');
+    const elements = this.getProjectElements();
+    this.saveOriginalState(elements);
     
-    // Сохраняем исходный HTML на случай возврата
-    if (projectWrapper && !projectWrapper.dataset.originalHtml) {
-      projectWrapper.dataset.originalHtml = projectWrapper.innerHTML;
-    }
+    // Обновляем изображения
+    this.updateLargeImage(elements.largeImgContainer, 'assets/images/zine_1.jpg', 'Music zine main cover');
+    this.updateSmallImages(elements.leftColumn, [
+      { src: 'assets/images/zine_2.jpg', alt: 'Music zine spread 1' },
+      { src: 'assets/images/zine_3.jpg', alt: 'Music zine spread 2' }
+    ]);
     
-    leftColumn.dataset.originalHtml = leftColumn.innerHTML;
-    largeImgContainer.dataset.originalHtml = largeImgContainer.innerHTML;
-    projectTextBlock.dataset.originalDisplay = projectTextBlock.style.display;
-    morePhotos.dataset.originalText = morePhotos.innerHTML;
-    bottomContainer.dataset.originalDisplay = bottomContainer.style.display;
+    // Настраиваем интерфейс
+    this.updateMorePhotosText(elements.morePhotos, '6 more photos');
+    elements.projectTextBlock.style.display = 'none';
+    elements.bottomContainer.style.display = 'none';
     
-    // Обновляем БОЛЬШОЕ изображение (zine_1)
-    const largeImage = largeImgContainer.querySelector('img');
-    if (largeImage) {
-      largeImage.src = 'assets/images/zine_1.jpg';
-      largeImage.alt = 'Music zine main cover';
-    }
-    
-    // Обновляем МАЛЕНЬКИЕ изображения (zine_2 и zine_3)
-    const smallImages = leftColumn.querySelectorAll('.project-small-img img');
-    if (smallImages.length >= 2) {
-      smallImages[0].src = 'assets/images/zine_2.jpg';
-      smallImages[0].alt = 'Music zine spread 1';
-      
-      smallImages[1].src = 'assets/images/zine_3.jpg';
-      smallImages[1].alt = 'Music zine spread 2';
-    }
-    
-    // Обновляем текст кнопки "more photos"
-    if (morePhotos) {
-      const span = morePhotos.querySelector('span');
-      if (span) {
-        span.textContent = '6 more photos';
-      } else {
-        morePhotos.innerHTML = '<span>6 more photos</span>';
-      }
-    }
-    
-    // Скрываем текстовый блок и нижний контейнер
-    projectTextBlock.style.display = 'none';
-    bottomContainer.style.display = 'none';
-    
-    // Перемещаем кнопки из нижнего контейнера прямо в project-wrapper
-    // Сначала удаляем их из текущих родителей
-    morePhotos.parentNode.removeChild(morePhotos);
-    projectGoBack.parentNode.removeChild(projectGoBack);
-    
-    // Добавляем обратно в project-wrapper
-    projectWrapper.appendChild(morePhotos);
-    projectWrapper.appendChild(projectGoBack);
-    
-    // Устанавливаем абсолютное позиционирование для десктопной версии
-    if (window.innerWidth > 767) {
-      projectWrapper.style.position = 'relative'; // Для абсолютного позиционирования кнопок
-      
-      // Стили для "6 more photos"
-      morePhotos.style.position = 'absolute';
-      morePhotos.style.left = '0';
-      morePhotos.style.top = '627px'; // 595px (высота фото) + 32px (отступ)
-      morePhotos.style.marginTop = '0';
-      morePhotos.style.zIndex = '2';
-      
-      // Стили для "go back"
-      projectGoBack.style.position = 'absolute';
-      projectGoBack.style.left = '247px'; // 235px + 12px
-      projectGoBack.style.top = '639px'; // 595px + 32px + 12px
-      projectGoBack.style.marginTop = '0';
-      projectGoBack.style.zIndex = '2';
-    }
-    
-    // Для адаптивности на мобильных
-    this.adaptMusicZineForMobile();
-  }
-  
-  // Обновляем метод адаптации для music zine:
-  adaptMusicZineForMobile() {
-    const projectWrapper = this.projectContent.querySelector('.project-wrapper');
-    const morePhotos = this.projectContent.querySelector('.more-photos');
-    const projectGoBack = this.projectContent.querySelector('.project-go-back');
-    
-    if (window.innerWidth <= 767) {
-      // На мобильных - флекс-контейнер для кнопок
-      if (projectWrapper) {
-        projectWrapper.style.position = 'static';
-      }
-      
-      if (morePhotos) {
-        morePhotos.style.cssText = ''; // Сбрасываем все стили
-        morePhotos.style.marginTop = '20px';
-        morePhotos.style.order = '1';
-        morePhotos.style.alignSelf = 'flex-start';
-      }
-      
-      if (projectGoBack) {
-        projectGoBack.style.cssText = ''; // Сбрасываем все стили
-        projectGoBack.style.marginTop = '12px';
-        projectGoBack.style.order = '2';
-        projectGoBack.style.alignSelf = 'flex-start';
-      }
-    } else {
-      // На десктопе - абсолютное позиционирование
-      if (projectWrapper) {
-        projectWrapper.style.position = 'relative';
-      }
-    }
+    this.repositionButtons(elements.projectWrapper, elements.morePhotos, elements.projectGoBack, 595, 627);
+    this.adaptMusicZineForMobile(elements);
   }
   
   setupMindplugProject() {
-    // Добавляем специальный класс для проекта mindplug
     this.projectContent.classList.add('mindplug-project');
     
-    // Получаем контейнер для левой колонки
-    const leftColumn = this.projectContent.querySelector('.project-left-column');
-    const largeImgContainer = this.projectContent.querySelector('.project-large-img');
-    const projectWrapper = this.projectContent.querySelector('.project-wrapper');
+    const elements = this.getProjectElements();
+    this.saveOriginalState(elements);
     
-    // Сохраняем исходный HTML на случай возврата
-    if (projectWrapper && !projectWrapper.dataset.originalHtml) {
-      projectWrapper.dataset.originalHtml = projectWrapper.innerHTML;
-    }
+    // Создаем видео в левой колонке
+    const videoContainer = this.createVideoContainer('assets/images/mindplug.mp4', 'Mindplug project animation');
+    elements.leftColumn.innerHTML = '';
+    elements.leftColumn.style.gridColumn = '1 / span 3';
+    elements.leftColumn.style.width = '977px';
+    elements.leftColumn.style.height = '595px';
+    elements.leftColumn.appendChild(videoContainer);
     
-    leftColumn.dataset.originalHtml = leftColumn.innerHTML;
-    largeImgContainer.dataset.originalHtml = largeImgContainer.innerHTML;
+    // Скрываем неиспользуемые элементы
+    elements.largeImgContainer.style.display = 'none';
+    if (elements.morePhotos) elements.morePhotos.style.display = 'none';
     
-    // Очищаем левую колонку и делаем её контейнером для видео
-    leftColumn.innerHTML = '';
-    leftColumn.style.gridColumn = '1 / span 3';
-    leftColumn.style.width = '977px';
-    leftColumn.style.height = '595px';
-    
-    const videoContainer = document.createElement('div');
-    videoContainer.className = 'project-video-container';
-    videoContainer.style.width = '100%';
-    videoContainer.style.height = '100%';
-    videoContainer.style.overflow = 'hidden';
-    
-    // СОЗДАЕМ ВИДЕО ЭЛЕМЕНТ ВМЕСТО IMG
-    const video = document.createElement('video');
-    video.src = 'assets/images/mindplug.mp4'; // Меняем .gif на .mp4
-    video.alt = 'Mindplug project animation';
-    video.style.width = '100%';
-    video.style.height = '100%';
-    video.style.objectFit = 'cover';
-    video.style.display = 'block';
-    video.loop = true; // Зацикливание
-    video.muted = true; // Без звука
-    video.autoplay = true; // Автовоспроизведение
-    video.playsInline = true; // Для iOS
-    video.currentTime = 0; // Начинаем с начала
-    
-    videoContainer.appendChild(video);
-    leftColumn.appendChild(videoContainer);
-    
-    // Скрываем правую колонку с большим изображением
-    largeImgContainer.style.display = 'none';
-    
-    // Скрываем кнопку "12 more photos"
-    const morePhotos = this.projectContent.querySelector('.more-photos');
-    if (morePhotos) morePhotos.style.display = 'none';
-    
-    // Для адаптивности на мобильных
-    this.adaptMindplugForMobile();
+    this.adaptForMobile(elements.leftColumn, 'mindplug');
   }
   
   setupSongPosterProject() {
-   // Добавляем специальный класс для проекта song poster
-   this.projectContent.classList.add('song-poster-project');
-  
-   // Получаем основные контейнеры
-   const leftColumn = this.projectContent.querySelector('.project-left-column');
-   const largeImgContainer = this.projectContent.querySelector('.project-large-img');
-   const projectWrapper = this.projectContent.querySelector('.project-wrapper');
-   const bottomContainer = this.projectContent.querySelector('.project-bottom-container');
-   
-   // ВАЖНО: Сохраняем исходный HTML перед изменением
-   if (projectWrapper && !projectWrapper.dataset.originalHtml) {
-     projectWrapper.dataset.originalHtml = projectWrapper.innerHTML;
-   }
-   
-   // Сохраняем исходный HTML на случай возврата
-   leftColumn.dataset.originalHtml = leftColumn.innerHTML;
-   largeImgContainer.dataset.originalHtml = largeImgContainer.innerHTML;
-   projectWrapper.dataset.originalDisplay = projectWrapper.style.display;
-   bottomContainer.dataset.originalDisplay = bottomContainer.style.display;
-   
-    // Очищаем все и создаем новую структуру
-    projectWrapper.innerHTML = '';
-    projectWrapper.style.display = 'flex';
-    projectWrapper.style.flexDirection = 'column';
-    projectWrapper.style.alignItems = 'flex-end'; /* Прибиваем к правому краю */
-    projectWrapper.style.justifyContent = 'flex-start';
-    projectWrapper.style.width = '100%';
-    projectWrapper.style.height = '100%';
-    projectWrapper.style.position = 'relative';
+    this.projectContent.classList.add('song-poster-project');
     
-    // Создаем контейнер для гифки
+    const elements = this.getProjectElements();
+    this.saveOriginalState(elements);
+    
+    // Очищаем и создаем новую структуру
+    elements.projectWrapper.innerHTML = '';
+    elements.projectWrapper.style.display = 'flex';
+    elements.projectWrapper.style.flexDirection = 'column';
+    elements.projectWrapper.style.alignItems = 'flex-end';
+    elements.projectWrapper.style.justifyContent = 'flex-start';
+    elements.projectWrapper.style.width = '100%';
+    elements.projectWrapper.style.height = '100%';
+    elements.projectWrapper.style.position = 'relative';
+    
+    // Создаем контейнер для GIF
+    const gifContainer = this.createGifContainer('assets/images/song-poster.gif', 'Song poster animation', 443, 627);
+    elements.projectWrapper.appendChild(gifContainer);
+    
+    // Кнопка возврата
+    const goBackContainer = this.createGoBackContainer(443, 32);
+    elements.projectWrapper.appendChild(goBackContainer);
+    
+    elements.bottomContainer.style.display = 'none';
+    this.adaptSongPosterForMobile();
+  }
+  
+  setupVintageProject() {
+    this.projectContent.classList.add('vintage-project');
+    
+    const elements = this.getProjectElements();
+    this.saveOriginalState(elements);
+    
+    // Создаем видео в левой колонке
+    const videoContainer = this.createVideoContainer('assets/images/vintage.mp4', 'Vintage app interface animation');
+    elements.leftColumn.innerHTML = '';
+    elements.leftColumn.style.gridColumn = '1 / span 3';
+    elements.leftColumn.style.width = '977px';
+    elements.leftColumn.style.height = '595px';
+    elements.leftColumn.appendChild(videoContainer);
+    
+    // Скрываем неиспользуемые элементы
+    elements.largeImgContainer.style.display = 'none';
+    if (elements.morePhotos) elements.morePhotos.style.display = 'none';
+    
+    this.adaptForMobile(elements.leftColumn, 'vintage');
+  }
+  
+  setupRegularProject() {
+    const specialClasses = [
+      'mindplug-project', 'song-poster-project', 'vintage-project',
+      'music-zine-project', 'terracotta-project', 'calendar-project'
+    ];
+    this.projectContent.classList.remove(...specialClasses);
+    
+    const elements = this.getProjectElements();
+    
+    // Восстанавливаем оригинальную структуру
+    if (elements.projectWrapper && elements.projectWrapper.dataset.originalHtml) {
+      elements.projectWrapper.innerHTML = elements.projectWrapper.dataset.originalHtml;
+    }
+    
+    // Сбрасываем стили
+    if (elements.bottomContainer) elements.bottomContainer.style.cssText = '';
+    if (elements.projectTextBlock && elements.projectTextBlock.dataset.originalDisplay) {
+      elements.projectTextBlock.style.display = elements.projectTextBlock.dataset.originalDisplay;
+    }
+    if (elements.morePhotos && elements.morePhotos.dataset.originalText) {
+      elements.morePhotos.innerHTML = elements.morePhotos.dataset.originalText;
+    }
+    if (elements.projectWrapper) elements.projectWrapper.style.position = '';
+    if (elements.projectGoBack) elements.projectGoBack.style.cssText = '';
+    
+    // Восстанавливаем обработчик
+    const restoredGoBackBtn = elements.projectWrapper.querySelector('.project-go-back');
+    if (restoredGoBackBtn) {
+      restoredGoBackBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.closeProject();
+      });
+    }
+    
+    this.reinitializeGallery();
+  }
+  
+  // Вспомогательные методы
+  getProjectElements() {
+    return {
+      leftColumn: this.projectContent.querySelector('.project-left-column'),
+      largeImgContainer: this.projectContent.querySelector('.project-large-img'),
+      projectWrapper: this.projectContent.querySelector('.project-wrapper'),
+      bottomContainer: this.projectContent.querySelector('.project-bottom-container'),
+      projectTextBlock: this.projectContent.querySelector('.project-text-block'),
+      morePhotos: this.projectContent.querySelector('.more-photos'),
+      projectGoBack: this.projectContent.querySelector('.project-go-back')
+    };
+  }
+  
+  saveOriginalState(elements) {
+    if (elements.projectWrapper && !elements.projectWrapper.dataset.originalHtml) {
+      elements.projectWrapper.dataset.originalHtml = elements.projectWrapper.innerHTML;
+    }
+    
+    Object.keys(elements).forEach(key => {
+      if (elements[key] && !elements[key].dataset.originalHtml) {
+        elements[key].dataset.originalHtml = elements[key].innerHTML;
+      }
+    });
+  }
+  
+  createVideoContainer(src, alt) {
+    const videoContainer = document.createElement('div');
+    videoContainer.className = 'project-video-container';
+    videoContainer.style.cssText = 'width: 100%; height: 100%; overflow: hidden;';
+    
+    const video = document.createElement('video');
+    video.src = src;
+    video.alt = alt;
+    video.style.cssText = 'width: 100%; height: 100%; object-fit: cover; display: block;';
+    video.loop = true;
+    video.muted = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.currentTime = 0;
+    
+    videoContainer.appendChild(video);
+    return videoContainer;
+  }
+  
+  createGifContainer(src, alt, width, height) {
     const gifContainer = document.createElement('div');
     gifContainer.className = 'song-poster-gif-container';
-    gifContainer.style.width = '443px';
-    gifContainer.style.height = '627px';
-    gifContainer.style.overflow = 'hidden';
-    gifContainer.style.marginLeft = 'auto'; /* Прибиваем к правому краю */
+    gifContainer.style.cssText = `width: ${width}px; height: ${height}px; overflow: hidden; margin-left: auto;`;
     
-    // Создаем изображение для гифки
     const gifImage = document.createElement('img');
-    gifImage.src = 'assets/images/song-poster.gif'; // Укажите путь к гифке
-    gifImage.alt = 'Song poster animation';
-    gifImage.style.width = '100%';
-    gifImage.style.height = '100%';
-    gifImage.style.objectFit = 'cover';
-    gifImage.style.display = 'block';
+    gifImage.src = src;
+    gifImage.alt = alt;
+    gifImage.style.cssText = 'width: 100%; height: 100%; object-fit: cover; display: block;';
     
     gifContainer.appendChild(gifImage);
-    projectWrapper.appendChild(gifContainer);
-    
-    // Создаем контейнер для кнопки go back
+    return gifContainer;
+  }
+  
+  createGoBackContainer(width, marginTop) {
     const goBackContainer = document.createElement('div');
     goBackContainer.className = 'song-poster-go-back-container';
-    goBackContainer.style.marginTop = '32px';
-    goBackContainer.style.marginLeft = 'auto'; /* Выравниваем по правому краю */
-    goBackContainer.style.width = '443px'; /* Та же ширина что и у гифки */
-    goBackContainer.style.display = 'flex';
-    goBackContainer.style.justifyContent = 'flex-start'; /* Кнопка слева внутри контейнера */
+    goBackContainer.style.cssText = `
+      margin-top: ${marginTop}px;
+      margin-left: auto;
+      width: ${width}px;
+      display: flex;
+      justify-content: flex-start;
+    `;
     
-    // Копируем кнопку go back
     const goBackBtn = this.goBackBtn.cloneNode(true);
-    goBackBtn.style.position = 'static';
-    goBackBtn.style.transform = 'none';
-    goBackBtn.style.margin = '0';
+    goBackBtn.style.cssText = 'position: static; transform: none; margin: 0;';
     
-    // Удаляем старый обработчик и добавляем новый
     const newGoBackBtn = goBackBtn.querySelector('.project-go-back') || goBackBtn;
     newGoBackBtn.onclick = null;
     newGoBackBtn.addEventListener('click', (e) => {
@@ -1024,149 +800,160 @@ adaptTerracottaForMobile() {
     });
     
     goBackContainer.appendChild(newGoBackBtn);
-    projectWrapper.appendChild(goBackContainer);
-    
-    // Скрываем обычные элементы
-    bottomContainer.style.display = 'none';
-    
-    // Для адаптивности на мобильных
-    this.adaptSongPosterForMobile();
-  }
-
-  setupVintageProject() {
-    // Добавляем специальный класс для проекта vintage
-    this.projectContent.classList.add('vintage-project');
-    
-    // Получаем контейнер для левой колонки
-    const leftColumn = this.projectContent.querySelector('.project-left-column');
-    const largeImgContainer = this.projectContent.querySelector('.project-large-img');
-    const projectWrapper = this.projectContent.querySelector('.project-wrapper');
-    
-    // Сохраняем исходный HTML на случай возврата
-    if (projectWrapper && !projectWrapper.dataset.originalHtml) {
-      projectWrapper.dataset.originalHtml = projectWrapper.innerHTML;
-    }
-    
-    leftColumn.dataset.originalHtml = leftColumn.innerHTML;
-    largeImgContainer.dataset.originalHtml = largeImgContainer.innerHTML;
-    
-    // Очищаем левую колонку и делаем её контейнером для большой гифки
-    leftColumn.innerHTML = '';
-    leftColumn.style.gridColumn = '1 / span 3'; // Занимает все 3 колонки (235 + 12 + 730 = 977px)
-    leftColumn.style.width = '977px';
-    leftColumn.style.height = '595px';
-    
-    const gifContainer = document.createElement('div');
-    gifContainer.className = 'project-gif-container vintage-gif-container';
-    gifContainer.style.width = '100%';
-    gifContainer.style.height = '100%';
-    gifContainer.style.overflow = 'hidden';
-    
-    const video = document.createElement('video');
-    video.src = 'assets/images/vintage.mp4'; // Измените путь на ваш mp4 файл
-    video.alt = 'Vintage app interface animation';
-    video.style.width = '100%';
-    video.style.height = '100%';
-    video.style.objectFit = 'cover';
-    video.style.display = 'block';
-    video.loop = true; // Зацикливание
-    video.muted = true; // Без звука
-    video.autoplay = true; // Автовоспроизведение
-    video.playsInline = true; // Для iOS
-    
-    gifContainer.appendChild(video); // Заменяем gifImage на video
-    leftColumn.appendChild(gifContainer);
-    
-    // Скрываем правую колонку с большим изображением
-    largeImgContainer.style.display = 'none';
-    
-    // Скрываем кнопку "12 more photos"
-    const morePhotos = this.projectContent.querySelector('.more-photos');
-    if (morePhotos) morePhotos.style.display = 'none';
-    
-    // Для адаптивности на мобильных
-    this.adaptVintageForMobile();
+    return goBackContainer;
   }
   
-  // Добавляем метод адаптации для vintage:
-  adaptVintageForMobile() {
-    // На мобильных устройствах адаптируем гифку
-    if (window.innerWidth <= 767) {
-      const leftColumn = this.projectContent.querySelector('.project-left-column');
-      if (leftColumn) {
-        leftColumn.style.gridColumn = '1';
-        leftColumn.style.width = '100%';
-        leftColumn.style.height = 'auto';
-        leftColumn.style.aspectRatio = '977 / 595';
+  limitSmallImages(container, maxCount) {
+    const smallImages = container.querySelectorAll('.project-small-img');
+    for (let i = smallImages.length - 1; i >= maxCount; i--) {
+      smallImages[i].remove();
+    }
+  }
+  
+  updateSmallImages(container, images) {
+    const smallImages = container.querySelectorAll('.project-small-img img');
+    images.forEach((imgData, index) => {
+      if (smallImages[index]) {
+        smallImages[index].src = imgData.src;
+        smallImages[index].alt = imgData.alt;
+      }
+    });
+  }
+  
+  updateLargeImage(container, src, alt) {
+    const largeImage = container.querySelector('img');
+    if (largeImage) {
+      largeImage.src = src;
+      largeImage.alt = alt;
+    }
+  }
+  
+  updateMorePhotosText(element, text) {
+    if (element) {
+      const span = element.querySelector('span');
+      if (span) {
+        span.textContent = text;
+      } else {
+        element.innerHTML = `<span>${text}</span>`;
       }
     }
   }
   
-  setupRegularProject() {
-    // Убираем классы специальных проектов
-    this.projectContent.classList.remove('mindplug-project', 'song-poster-project', 'vintage-project', 'music-zine-project', 'terracotta-project');
+  repositionButtons(wrapper, morePhotos, goBack, videoHeight, topOffset = 0) {
+    if (!wrapper || !morePhotos || !goBack) return;
     
-    // Полностью восстанавливаем оригинальную структуру
-    const projectWrapper = this.projectContent.querySelector('.project-wrapper');
-    const bottomContainer = this.projectContent.querySelector('.project-bottom-container');
-    const projectTextBlock = this.projectContent.querySelector('.project-text-block');
-    const morePhotos = this.projectContent.querySelector('.more-photos');
-    const projectGoBack = this.projectContent.querySelector('.project-go-back');
+    // Перемещаем кнопки
+    morePhotos.parentNode.removeChild(morePhotos);
+    goBack.parentNode.removeChild(goBack);
     
-    // Восстанавливаем оригинальную структуру wrapper
-    if (projectWrapper && projectWrapper.dataset.originalHtml) {
-      projectWrapper.innerHTML = projectWrapper.dataset.originalHtml;
+    wrapper.appendChild(morePhotos);
+    wrapper.appendChild(goBack);
+    
+    if (window.innerWidth > 767) {
+      wrapper.style.position = 'relative';
+      
+      const photosTop = topOffset || videoHeight;
+      morePhotos.style.cssText = `
+        position: absolute;
+        left: 0;
+        top: ${photosTop}px;
+        margin-top: ${topOffset ? '0' : '32px'};
+        z-index: 2;
+      `;
+      
+      goBack.style.cssText = `
+        position: absolute;
+        left: 247px;
+        top: ${topOffset ? photosTop + 12 : videoHeight + 44}px;
+        margin-top: 0;
+        z-index: 2;
+      `;
     }
-    
-    // Восстанавливаем нижний контейнер
-    if (bottomContainer) {
-      bottomContainer.style.cssText = ''; // Сбрасываем все стили
-    }
-    
-    // Восстанавливаем текстовый блок
-    if (projectTextBlock && projectTextBlock.dataset.originalDisplay) {
-      projectTextBlock.style.display = projectTextBlock.dataset.originalDisplay;
-    }
-    
-    // Восстанавливаем кнопку "more photos"
-    if (morePhotos && morePhotos.dataset.originalText) {
-      morePhotos.innerHTML = morePhotos.dataset.originalText;
-    }
-
-      // Сбрасываем позиционирование
-  if (projectWrapper) {
-    projectWrapper.style.position = '';
-  }
-    
-    // Восстанавливаем позицию кнопки "go back"
-    if (projectGoBack) {
-      projectGoBack.style.cssText = '';
-    }
-    
-    // Восстанавливаем обработчик кнопки go back
-    const restoredGoBackBtn = projectWrapper.querySelector('.project-go-back');
-    if (restoredGoBackBtn) {
-      restoredGoBackBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.closeProject();
-      });
-    }
-    
-    // Сбрасываем адаптацию для мобильных
-    this.resetMobileAdaptation();
   }
   
-  
-  adaptMindplugForMobile() {
-    // На мобильных устройствах адаптируем гифку
-    if (window.innerWidth <= 767) {
-      const leftColumn = this.projectContent.querySelector('.project-left-column');
-      if (leftColumn) {
-        leftColumn.style.gridColumn = '1';
-        leftColumn.style.width = '100%';
-        leftColumn.style.height = 'auto';
-        leftColumn.style.aspectRatio = '977 / 595';
+  updateProjectData(imageSrc, title) {
+    const projectText = document.querySelector('.project-text-block p');
+    
+    // Специальный текст для проектов
+    if (this.projectTexts[title]) {
+      if (projectText) {
+        projectText.innerHTML = this.projectTexts[title];
       }
+      return;
+    }
+    
+    // Обычный текст для других проектов
+    if (projectText) {
+      projectText.innerHTML = `
+        <strong>${title}</strong> — some text about the project. some text about the project. 
+        some text about the project. some text about the project. some text about the project. 
+        some text about the project. some text about the project. some text about the project. 
+        some text about the project. some text about the project. some text about the project. 
+        some text about the project. some text about the project. some text about the project. 
+        some text about the project. some text about the project. some text about the project. 
+        some text about the project. some text about the project. some text about the project. 
+        some text about the project. some text about the project. some text about the project. 
+        some text about the project. some text about the project. some text about the project.
+      `;
+    }
+    
+    // Обновляем главное изображение для обычных проектов
+    const skipImageUpdate = [
+      'mindplug', 'song poster', 'vintage', 
+      'music zine', 'terracotta', 'a calendar for korean laboring folks'
+    ];
+    
+    if (!skipImageUpdate.includes(title)) {
+      const mainImage = document.querySelector('.project-large-img img');
+      if (mainImage) {
+        mainImage.src = imageSrc;
+      }
+    }
+  }
+  
+  // Методы адаптации для мобильных
+  adaptCalendarForMobile(elements) {
+    if (window.innerWidth <= 767) {
+      if (elements.projectWrapper) elements.projectWrapper.style.position = 'static';
+      if (elements.morePhotos) {
+        elements.morePhotos.style.cssText = '';
+        elements.morePhotos.style.marginTop = '20px';
+        elements.morePhotos.style.order = '1';
+        elements.morePhotos.style.alignSelf = 'flex-start';
+      }
+      if (elements.projectGoBack) {
+        elements.projectGoBack.style.cssText = '';
+        elements.projectGoBack.style.marginTop = '12px';
+        elements.projectGoBack.style.order = '2';
+        elements.projectGoBack.style.alignSelf = 'flex-start';
+      }
+    }
+  }
+  
+  adaptMusicZineForMobile(elements) {
+    if (window.innerWidth <= 767) {
+      if (elements.projectWrapper) elements.projectWrapper.style.position = 'static';
+      if (elements.morePhotos) {
+        elements.morePhotos.style.cssText = '';
+        elements.morePhotos.style.marginTop = '20px';
+        elements.morePhotos.style.order = '1';
+        elements.morePhotos.style.alignSelf = 'flex-start';
+      }
+      if (elements.projectGoBack) {
+        elements.projectGoBack.style.cssText = '';
+        elements.projectGoBack.style.marginTop = '12px';
+        elements.projectGoBack.style.order = '2';
+        elements.projectGoBack.style.alignSelf = 'flex-start';
+      }
+    }
+  }
+  
+  adaptForMobile(element, type) {
+    if (window.innerWidth <= 767 && element) {
+      element.style.gridColumn = '1';
+      element.style.width = '100%';
+      element.style.height = 'auto';
+      element.style.aspectRatio = '977 / 595';
     }
   }
   
@@ -1176,17 +963,13 @@ adaptTerracottaForMobile() {
       const gifContainer = this.projectContent.querySelector('.song-poster-gif-container');
       const goBackContainer = this.projectContent.querySelector('.song-poster-go-back-container');
       
-      if (projectWrapper) {
-        projectWrapper.style.alignItems = 'center'; /* Центрируем на мобильных */
-      }
-      
+      if (projectWrapper) projectWrapper.style.alignItems = 'center';
       if (gifContainer) {
         gifContainer.style.width = '100%';
         gifContainer.style.height = 'auto';
         gifContainer.style.aspectRatio = '443 / 627';
         gifContainer.style.marginLeft = '0';
       }
-      
       if (goBackContainer) {
         goBackContainer.style.width = '100%';
         goBackContainer.style.marginLeft = '0';
@@ -1195,117 +978,37 @@ adaptTerracottaForMobile() {
     }
   }
   
-  resetMobileAdaptation() {
-    // Не нужно для обычного проекта
-  }
-  
-  updateProjectData(imageSrc, title) {
-    const projectText = document.querySelector('.project-text-block p');
-    
-  // Специальный текст для calendar
-  if (title === 'a calendar for korean laboring folks') {
-    if (projectText) {
-      projectText.innerHTML = `
-        <strong>A calendar for Korean laboring folks</strong> — календарь для корейских работяг с акцентом на выходные и гос. праздники. в комплект идет пак наклеек для внеплановых выходных.
-        <br><br>
-        ода не сочетающимся цветам и съехавшей типографике, обусловленные азиатским контекстом.
-      `;
-    }
-    return;
-  }
-
-    // Специальный текст для song poster
-    if (title === 'song poster') {
-      return; // Выходим раньше, не обновляем обычные изображения
-    }
-
-        // Специальный текст для vintage
-        if (title === 'vintage') {
-          if (projectText) {
-            projectText.innerHTML = `
-              приложение-гид по винтажному сообществу. здесь пользователь узнает о главных новостях и фактах, совершает сделки, записывается на аукционы и отслеживает свой прогресс продвижения в винтажной культуре.
-            `;
-          }
-          return; // Выходим раньше
-        }
-    
-    // Специальный текст для mindplug
-    if (title === 'mindplug') {
-      if (projectText) {
-        projectText.innerHTML = `
-          <a href="https://caesarusss.github.io/poster_code/">website link</a>
-          <br>
-          <br> mindplug — радио, проигрывающее разноформатные звуки. помогает людям <br> с силенсофобией и бессонницей. сайт раскрывает айдентику продукта.
-        `;
-      }
-      return; // Выходим раньше
-    }
-
-    // Специальный текст для terracotta
-    if (title === 'terracotta') {
-      if (projectText) {
-        projectText.innerHTML = `
-          <a href="https://www.figma.com/proto/RIplRLIAGAqrtVNZv0URjJ/terracotta?node-id=1-11&t=zYa2wHKGLHNnCxqJ-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A11">prototype link</a>
-          <br>
-          <br> сайт для уютной гончарной мастерской.
-        `;
-      }
-      return;
-    }
-    
-        // Специальный текст для music zine
-        if (title === 'music zine') {
-          return; // Выходим раньше
-        }
-    
-    // Обычный текст для других проектов
-    if (projectText) {
-      const texts = [
-        `<strong>${title}</strong> — some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project.  some text about the project. some text about the project.`,
-      ];
-      
-      // Берем случайный текст разной длины
-      const randomText = texts[Math.floor(Math.random() * texts.length)];
-      projectText.innerHTML = randomText;
-    }
-    
-    if (title !== 'mindplug' && title !== 'song poster' && title !== 'vintage' && 
-      title !== 'music zine' && title !== 'terracotta' && 
-      title !== 'a calendar for korean laboring folks') {
-    const mainImage = document.querySelector('.project-large-img img');
-    if (mainImage) {
-      mainImage.src = imageSrc;
-    }
-  }
-}
-  
   updateButtonPosition() {
     // Кнопка уже правильно позиционирована через CSS Grid
   }
+  
+  reinitializeGallery() {
+    setTimeout(() => {
+      if (window.gallery && typeof window.gallery.reinitGalleryTriggers === 'function') {
+        window.gallery.reinitGalleryTriggers();
+      }
+    }, 150);
+  }
 }
 
-// Инициализация после загрузки страницы
+// Инициализация
 document.addEventListener('DOMContentLoaded', () => {
-  // Ждем завершения прелоадера
-  setTimeout(() => {
-    new ProjectView();
-  }, 1000);
+  setTimeout(() => new ProjectView(), 1000);
 });
 
 if (document.readyState === 'complete') {
   new ProjectView();
 }
-
 class SimpleGallery {
   constructor() {
-      this.overlay = document.querySelector('.gallery-overlay');
-      this.content = document.querySelector('.gallery-content');
-      this.counter = document.querySelector('.gallery-counter');
-      
-      this.images = [];
-      this.currentIndex = 0;
-      
-      this.init();
+    this.overlay = document.querySelector('.gallery-overlay');
+    this.content = document.querySelector('.gallery-content');
+    this.counter = document.querySelector('.gallery-counter');
+    
+    this.images = [];
+    this.currentIndex = 0;
+    
+    this.init();
   }
   
   init() {
@@ -1313,242 +1016,322 @@ class SimpleGallery {
     this.setupOpenTriggers();
     this.setupControls();
     
-    // Простой обработчик закрытия по клику на overlay
     this.overlay.addEventListener('click', (e) => {
-      // Закрываем всегда, кроме случаев когда кликнули на стрелки
       if (!e.target.classList.contains('gallery-arrow')) {
         this.close();
       }
     });
     
-    // Для специальных проектов отключаем галерею
     this.disableGalleryForSpecialProjects();
   }
   
+  // Основные методы
   collectImages() {
-    
-    // Проверяем, открыт ли проект music zine
-    const projectContent = document.querySelector('.project-content');
-    const isMusicZine = projectContent && projectContent.classList.contains('music-zine-project');
-    
-    if (isMusicZine) {
-      // Для music zine собираем свои изображения
-      this.images = [];
-      
-      // Большое изображение
-      const mainImg = document.querySelector('.project-large-img img');
-      if (mainImg) this.images.push(mainImg.src); // zine_1
-      
-      // Маленькие изображения
-      document.querySelectorAll('.project-small-img img').forEach(img => {
-        this.images.push(img.src); // zine_2 и zine_3
-      });
-      
-      // Дополнительные изображения для music zine (9 фото всего: 3 видимых + 6 скрытых)
-      // Но текст говорит "5 more photos", значит показываем 3 фото, а скрытых 6
-      for (let i = 4; i <= 9; i++) { // Изменено с 8 на 9
-        this.images.push(`assets/images/zine_${i}.jpg`);
-      }
-    } else {
-      // Для обычных проектов - стандартная логика
-      const mainImg = document.querySelector('.project-large-img img');
-      if (mainImg) this.images.push(mainImg.src);
-      
-      document.querySelectorAll('.project-small-img img').forEach(img => {
-        this.images.push(img.src);
-      });
-
-       // Проверяем, открыт ли проект calendar
-  const projectContent = document.querySelector('.project-content');
-  const isCalendar = projectContent && projectContent.classList.contains('calendar-project');
-  
-  if (isCalendar) {
-    // Для calendar собираем свои изображения
     this.images = [];
+    const projectContent = document.querySelector('.project-content');
     
-    // Видео (первое в галерее)
-    this.images.push('assets/images/calendar.mp4');
+    const projectType = this.getProjectType(projectContent);
+    console.log('Collecting images for project type:', projectType);
     
+    switch(projectType) {
+      case 'calendar':
+        this.collectCalendarImages();
+        break;
+      case 'music-zine':
+        this.collectMusicZineImages();
+        break;
+      case 'regular':
+        this.collectRegularImages();
+        break;
+      default:
+        console.log('No gallery for this project type');
+    }
+  }
+  
+  getProjectType(projectContent) {
+    if (!projectContent) return 'regular';
+    
+    if (projectContent.classList.contains('calendar-project')) return 'calendar';
+    if (projectContent.classList.contains('music-zine-project')) return 'music-zine';
+    
+    const disabledProjects = [
+      'mindplug-project', 'song-poster-project',
+      'terracotta-project', 'vintage-project'
+    ];
+    
+    for (const project of disabledProjects) {
+      if (projectContent.classList.contains(project)) {
+        return 'disabled';
+      }
+    }
+    
+    return 'regular';
+  }
+  
+  collectCalendarImages() {
     // 2 видимых маленьких фото
     const smallImgs = document.querySelectorAll('.project-small-img img');
     smallImgs.forEach(img => {
       this.images.push(img.src);
     });
     
-    // 4 дополнительные фото в галерее
-    for (let i = 3; i <= 6; i++) {
+    // 5 дополнительных фото для календаря
+    for (let i = 3; i <= 7; i++) {
       this.images.push(`assets/images/calendar_small_${i}.jpg`);
     }
+    
+    console.log('Total Calendar images:', this.images.length);
   }
-      
-      // Дополнительные изображения (симуляция)
-      for (let i = 3; i <= 12; i++) {
-        const colors = [
-          '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', 
-          '#ffeaa7', '#fab1a0', '#a29bfe', '#fd79a8',
-          '#55efc4', '#81ecec', '#74b9ff', '#dfe6e9'
-        ];
-        this.images.push(`https://via.placeholder.com/800x600/${colors[i-1].substring(1)}/ffffff?text=Project+${i}`);
-      }
+  
+  collectMusicZineImages() {
+    // Большое изображение
+    const mainImg = document.querySelector('.project-large-img img');
+    if (mainImg) this.images.push(mainImg.src);
+    
+    // 2 видимых маленьких изображения
+    document.querySelectorAll('.project-small-img img').forEach(img => {
+      this.images.push(img.src);
+    });
+    
+    // 6 дополнительных изображений
+    for (let i = 4; i <= 9; i++) {
+      this.images.push(`assets/images/zine_${i}.jpg`);
     }
+    
+    console.log('Total Music Zine images:', this.images.length);
+  }
+  
+  collectRegularImages() {
+    const mainImg = document.querySelector('.project-large-img img');
+    if (mainImg) this.images.push(mainImg.src);
+    
+    document.querySelectorAll('.project-small-img img').forEach(img => {
+      this.images.push(img.src);
+    });
+    
+    // Дополнительные изображения (симуляция)
+    for (let i = 3; i <= 12; i++) {
+      const colors = [
+        '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', 
+        '#ffeaa7', '#fab1a0', '#a29bfe', '#fd79a8',
+        '#55efc4', '#81ecec', '#74b9ff', '#dfe6e9'
+      ];
+      this.images.push(`https://via.placeholder.com/800x600/${colors[i-1].substring(1)}/ffffff?text=Project+${i}`);
+    }
+    
+    console.log('Total regular project images:', this.images.length);
+  }
+  
+  // Управление триггерами
+  reinitGalleryTriggers() {
+    console.log('Reinitializing gallery triggers...');
+    this.resetGallery();
+    this.removeAllEventListeners();
+    this.setupOpenTriggers();
+  }
+  
+  resetGallery() {
+    this.images = [];
+    this.currentIndex = 0;
+  }
+  
+  removeAllEventListeners() {
+    const elements = [
+      { selector: '.project-large-img', property: 'largeImgContainer' },
+      { selector: '.project-small-img', property: 'smallImgs', isMultiple: true },
+      { selector: '.more-photos', property: 'moreBtn' }
+    ];
+    
+    elements.forEach(({ selector, property, isMultiple }) => {
+      const elements = isMultiple 
+        ? document.querySelectorAll(selector)
+        : [document.querySelector(selector)];
+      
+      elements.forEach(el => {
+        if (el) {
+          const newEl = el.cloneNode(true);
+          el.parentNode.replaceChild(newEl, el);
+        }
+      });
+    });
   }
   
   setupOpenTriggers() {
-      // Большое изображение
-      const largeImgContainer = document.querySelector('.project-large-img');
-      if (largeImgContainer) {
-          largeImgContainer.style.cursor = 'pointer';
-          largeImgContainer.addEventListener('click', () => this.open(0));
-      }
-      
-      // Маленькие изображения
-      document.querySelectorAll('.project-small-img').forEach((el, i) => {
-          el.style.cursor = 'pointer';
-          el.addEventListener('click', () => this.open(i + 1));
-      });
-      
-      // Кнопка "12 more photos"
-      const moreBtn = document.querySelector('.more-photos');
-      if (moreBtn) {
-          moreBtn.addEventListener('click', (e) => {
-              e.preventDefault();
-              this.open(0);
-          });
-      }
+    this.setupLargeImageTrigger();
+    this.setupSmallImagesTriggers();
+    this.setupMorePhotosTrigger();
   }
+  
+  setupLargeImageTrigger() {
+    const largeImgContainer = document.querySelector('.project-large-img');
+    if (largeImgContainer) {
+      largeImgContainer.style.cursor = 'pointer';
+      largeImgContainer.addEventListener('click', () => this.open(0));
+    }
+  }
+  
+  setupSmallImagesTriggers() {
+    document.querySelectorAll('.project-small-img').forEach((el, i) => {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => this.open(i + 1));
+    });
+  }
+  
+  setupMorePhotosTrigger() {
+    const moreBtn = document.querySelector('.more-photos');
+    if (moreBtn) {
+      moreBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.open(0);
+      });
+    }
+  }
+  
+  // Управление галереей
+  open(index = 0) {
+    const projectContent = document.querySelector('.project-content');
+    const projectType = this.getProjectType(projectContent);
+    
+    if (projectType === 'disabled') {
+      console.log('Gallery disabled for this project type');
+      return;
+    }
+    
+    this.collectImages();
+    
+    if (this.images.length === 0) {
+      console.error('No images found for gallery!');
+      return;
+    }
+    
+    this.currentIndex = Math.min(index, this.images.length - 1);
+    this.updateImage();
+    this.overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    const cursor = document.querySelector('.custom-cursor');
+    if (cursor) cursor.style.display = 'none';
+  }
+  
+  close() {
+    this.overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    const cursor = document.querySelector('.custom-cursor');
+    if (cursor) {
+      cursor.style.display = 'block';
+      setTimeout(() => {
+        if (window.smoothCursorInstance) {
+          cursor.style.transform = `translate(${window.smoothCursorInstance.pos.x}px, ${window.smoothCursorInstance.pos.y}px)`;
+        }
+      }, 50);
+    }
+  }
+  
+  updateImage() {
+    this.content.innerHTML = '';
+    
+    if (this.currentIndex < 0 || this.currentIndex >= this.images.length) {
+      console.error('Invalid image index:', this.currentIndex);
+      return;
+    }
+    
+    const img = document.createElement('img');
+    img.src = this.images[this.currentIndex];
+    img.alt = `Image ${this.currentIndex + 1}`;
+    img.style.cssText = 'pointer-events: none; max-width: 100%; max-height: 100%; object-fit: contain;';
+    
+    img.onerror = () => {
+      console.error('Failed to load image:', img.src);
+      img.src = 'https://via.placeholder.com/800x600/cccccc/999999?text=Image+not+found';
+    };
+    
+    this.content.appendChild(img);
+    this.counter.textContent = `${this.currentIndex + 1}/${this.images.length}`;
+  }
+  
+  prev() {
+    this.currentIndex = this.currentIndex > 0 ? this.currentIndex - 1 : this.images.length - 1;
+    this.updateImage();
+  }
+  
+  next() {
+    this.currentIndex = this.currentIndex < this.images.length - 1 ? this.currentIndex + 1 : 0;
+    this.updateImage();
+  }
+  
+  // Вспомогательные методы
+  setupControls() {
+    const prevBtn = document.querySelector('.gallery-arrow.prev');
+    const nextBtn = document.querySelector('.gallery-arrow.next');
+    
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.prev();
+    });
+    
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.next();
+    });
+    
+    document.addEventListener('keydown', (e) => {
+      if (!this.overlay.classList.contains('active')) return;
+      
+      switch(e.key) {
+        case 'Escape':
+          this.close();
+          break;
+        case 'ArrowLeft':
+          this.prev();
+          break;
+        case 'ArrowRight':
+          this.next();
+          break;
+      }
+    });
+  }
+  
   disableGalleryForSpecialProjects() {
-    // Если специальный проект открыт, отключаем клики по изображениям
     const checkForSpecialProjects = () => {
       const projectContent = document.querySelector('.project-content');
-      // ОСТАВЛЯЕМ только те проекты, где галерея НЕ нужна
-      if (projectContent && (
-        projectContent.classList.contains('mindplug-project') || 
-        projectContent.classList.contains('song-poster-project') ||
-        projectContent.classList.contains('terracotta-project') ||
-        projectContent.classList.contains('vintage-project')
-        // НЕ включаем music-zine-project - там галерея должна работать
-      )) {
-        const largeImgContainer = document.querySelector('.project-large-img');
-        const smallImgs = document.querySelectorAll('.project-small-img');
-        const moreBtn = document.querySelector('.more-photos');
-        
-        if (largeImgContainer) {
-          largeImgContainer.style.cursor = 'default';
-          // Удаляем все обработчики путем замены элемента
-          const newLargeImg = largeImgContainer.cloneNode(true);
-          largeImgContainer.parentNode.replaceChild(newLargeImg, largeImgContainer);
-        }
-        
-        smallImgs.forEach(el => {
-          el.style.cursor = 'default';
-          const newEl = el.cloneNode(true);
-          el.parentNode.replaceChild(newEl, el);
-        });
-        
-        if (moreBtn) {
-          const newMoreBtn = moreBtn.cloneNode(true);
-          moreBtn.parentNode.replaceChild(newMoreBtn, moreBtn);
-        }
+      const disabledProjects = [
+        'mindplug-project', 'song-poster-project',
+        'terracotta-project', 'vintage-project'
+      ];
+      
+      const isDisabled = disabledProjects.some(project => 
+        projectContent && projectContent.classList.contains(project)
+      );
+      
+      if (isDisabled) {
+        this.disableTriggers();
       }
     };
     
     setInterval(checkForSpecialProjects, 500);
   }
   
-  setupControls() {
-      // Предыдущее изображение
-      const prevBtn = document.querySelector('.gallery-arrow.prev');
-      prevBtn.addEventListener('click', (e) => {
-          e.stopPropagation(); // Предотвращаем всплытие до overlay
-          this.prev();
-      });
-      
-      // Следующее изображение
-      const nextBtn = document.querySelector('.gallery-arrow.next');
-      nextBtn.addEventListener('click', (e) => {
-          e.stopPropagation(); // Предотвращаем всплытие до overlay
-          this.next();
-      });
-      
-      // Клавиши клавиатуры
-      document.addEventListener('keydown', (e) => {
-          if (!this.overlay.classList.contains('active')) return;
-          
-          if (e.key === 'Escape') {
-              this.close();
-          } else if (e.key === 'ArrowLeft') {
-              this.prev();
-          } else if (e.key === 'ArrowRight') {
-              this.next();
-          }
-      });
-  }
-  open(index = 0) {
-    // Не открываем галерею ТОЛЬКО для тех проектов, где она не нужна
-    const projectContent = document.querySelector('.project-content');
-    if (projectContent && (
-      projectContent.classList.contains('mindplug-project') || 
-      projectContent.classList.contains('song-poster-project') ||
-      projectContent.classList.contains('terracotta-project') ||
-      projectContent.classList.contains('vintage-project')
-      // НЕ включаем music-zine-project
-    )) {
-      return;
-    }
+  disableTriggers() {
+    const elements = [
+      { selector: '.project-large-img', cursor: 'default' },
+      { selector: '.project-small-img', cursor: 'default', isMultiple: true },
+      { selector: '.more-photos', cursor: 'default' }
+    ];
     
-    // Для music zine - обновляем список изображений перед открытием
-    const isMusicZine = projectContent && projectContent.classList.contains('music-zine-project');
-    if (isMusicZine) {
-      this.collectImages(); // Пересобираем изображения для music zine
-    }
-    
-    this.currentIndex = index;
-    this.updateImage();
-    this.overlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    
-    // Скрыть кастомный курсор
-    const cursor = document.querySelector('.custom-cursor');
-    if (cursor) cursor.style.display = 'none';
-  }
-  
-  close() {
-      this.overlay.classList.remove('active');
-      document.body.style.overflow = '';
+    elements.forEach(({ selector, cursor, isMultiple }) => {
+      const els = isMultiple 
+        ? document.querySelectorAll(selector)
+        : [document.querySelector(selector)];
       
-      // Показать кастомный курсор
-      const cursor = document.querySelector('.custom-cursor');
-      if (cursor) {
-          cursor.style.display = 'block';
-          // Обновить позицию курсора
-          setTimeout(() => {
-              if (window.smoothCursorInstance) {
-                  cursor.style.transform = `translate(${window.smoothCursorInstance.pos.x}px, ${window.smoothCursorInstance.pos.y}px)`;
-              }
-          }, 50);
-      }
-  }
-  
-  updateImage() {
-      this.content.innerHTML = '';
-      
-      const img = document.createElement('img');
-      img.src = this.images[this.currentIndex];
-      img.alt = `Image ${this.currentIndex + 1}`;
-      img.style.pointerEvents = 'none'; // На всякий случай
-      
-      this.content.appendChild(img);
-      this.counter.textContent = `${this.currentIndex + 1}/${this.images.length}`;
-  }
-  
-  prev() {
-      this.currentIndex = this.currentIndex > 0 ? this.currentIndex - 1 : this.images.length - 1;
-      this.updateImage();
-  }
-  
-  next() {
-      this.currentIndex = this.currentIndex < this.images.length - 1 ? this.currentIndex + 1 : 0;
-      this.updateImage();
+      els.forEach(el => {
+        if (el) {
+          el.style.cursor = cursor;
+          const newEl = el.cloneNode(true);
+          el.parentNode.replaceChild(newEl, el);
+        }
+      });
+    });
   }
 }
 
