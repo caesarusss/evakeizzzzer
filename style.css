@@ -1323,12 +1323,14 @@ body {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto auto;
     padding: 10px;
+    gap: 20px; /* Увеличиваем общий gap для лучшего разделения */
   }
   
   .sidebar {
     grid-column: 1;
     grid-row: 1;
     text-align: left;
+    margin-bottom: 0;
   }
   
   .sidebar img {
@@ -1353,23 +1355,28 @@ body {
     text-align: left;
   }
   
-  .text-block {
-    grid-column: 1;
-    grid-row: 4;
-    width: 100%;
-    max-width: none;
-    height: 250px;
-    margin-top: 20px;
-    align-self: start;
-    font-size: 14px;
-    line-height: 18px;
-  }
-  
+  /* ВАЖНОЕ ИЗМЕНЕНИЕ: меняем порядок элементов */
   .content {
     grid-column: 1;
     grid-row: 3;
-    height: 50vh;
+    height: auto; /* Автоматическая высота */
+    max-height: 50vh; /* Но ограничиваем максимальную высоту */
     overflow-y: auto;
+    margin-bottom: 0; /* Убираем отступ снизу */
+  }
+  
+  .text-block {
+    grid-column: 1;
+    grid-row: 4; /* Текст идет ПОСЛЕ карточек */
+    width: 100%;
+    max-width: none;
+    height: auto; /* Автоматическая высота */
+    min-height: 200px;
+    margin-top: 16px !important; /* ТОЧНО добавляем верхний отступ */
+    align-self: start;
+    font-size: 14px;
+    line-height: 18px;
+    overflow: visible;
   }
   
   .cards {
@@ -1420,7 +1427,7 @@ body {
   
   .container {
     padding: 8px;
-    gap: 8px;
+    gap: 16px; /* Уменьшаем общий gap на маленьких экранах */
   }
   
   .sidebar img {
@@ -1436,9 +1443,10 @@ body {
   }
   
   .text-block {
-    height: 200px;
+    margin-top: 16px !important; /* Оставляем отступ */
     font-size: 14px;
     line-height: 18px;
+    min-height: 150px; /* Немного меньше минимальная высота */
   }
   
   .cards {
@@ -1463,6 +1471,17 @@ body {
   
   .label {
     letter-spacing: 0.3em;
+  }
+}
+
+/* Убираем лишние отступы для текстового блока в проектах на мобильных */
+@media (max-width: 767px) {
+  .project-text-block {
+    margin-top: 16px;
+  }
+  
+  .project-bottom-container {
+    margin-top: 16px !important;
   }
 }
 
