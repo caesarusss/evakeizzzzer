@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Layout</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="container">
+    <div class="sidebar">
+      <img src="assets/images/logo.svg" alt="лого">
+      <p class="subtitle">graphic designer in moscow</p>
+      <div id="customCursor"></div>
+    </div>
+
+    <div class="contacts">
+      <p class="contact">
+        <span class="label">telegram:</span> <span class="value">@evv_kei</span>
+      </p>
+      <p class="contact">
+        <span class="label">mail:</span> <span class="value">evakeizer0@gmail.com</span>
+      </p>
+
+      <div class="project-content">
+        <div class="project-wrapper">
+          <!-- Верхний ряд -->
+          <div class="project-left-column">
+            <div class="project-small-img">
+              <img src="assets/images/project-small-1.jpg" alt="Project detail 1">
+            </div>
+            <div class="project-small-img">
+              <img src="assets/images/project-small-2.jpg" alt="Project detail 2">
+            </div>
+            <a href="#" class="more-photos">
+              <span>12 more photos</span>
+            </a>
+          </div>
+          
+          <!-- Большая фото -->
+          <div class="project-large-img">
+            <img src="assets/images/project-large.jpg" alt="Project main">
+          </div>
+          
+          <!-- Нижний контейнер: текст + кнопка -->
+          <div class="project-bottom-container">
+            <div class="project-text-block">
+              <p>some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project. some text about the project.</p>
+            </div>
+            
+            <div class="project-go-back">
+              <span class="back-dot"></span>
+              <span class="back-text">go back</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>    
+  
+    <div class="content">
+      <div class="cards">
+    
+        <!-- Первый ряд: 1-2-1-1 -->
+        <div class="card">
+          <img src="assets/images/vintage.jpg" alt="">
+          <div class="card-title"><span class="dot"></span> <span class="text">vintage</span></div>
+        </div>
+        <div class="card">
+          <img src="assets/images/mindplug.jpg" alt="">
+          <div class="card-title"><span class="dot"></span> <span class="text">mindplug</span></div>
+        </div>
+        <div class="card">
+          <img src="assets/images/zine.jpg" alt="">
+          <div class="card-title"><span class="dot"></span> <span class="text">music zine</span></div>
+        </div>
+        <div class="card">
+          <img src="assets/images/calendar.jpg" alt="">
+          <div class="card-title"><span class="dot"></span> <span class="text">a calendar for korean laboring folks</span></div>
+        </div>
+    
+        <!-- Второй ряд: 2-1-1-1 -->
+        <div class="card">
+          <img src="assets/images/song-poster.jpg" alt="">
+          <div class="card-title"><span class="dot"></span> <span class="text">song poster</span></div>
+        </div>
+        <div class="card">
+          <img src="assets/images/terracotta.jpg" alt="">
+          <div class="card-title"><span class="dot"></span> <span class="text">terracotta</span></div>
+        </div>
+    
+      </div>
+    </div>    
+
+    <div class="text-block">
+      <p>ex-designer at Art Lebedev Studio with 3 years of experience. studied at the Design Department of the HSE and completed a course at the Perasperadastra design agency. i am proficient in Figma, Ps, Ai, Ae, Id, Blender, Tilda and VSCode (HTML/CSS/JS).
+
+        <br>experience in product design:
+        
+        <br>— research (TBD, UJM, observation, survey, A/B);
+        
+        <br>— creating clickable prototypes;
+        
+        <br>— coding;
+        
+        <br> — working with a design system;
+        
+        <br>— infographic design (from simple numeric and kanban charts to complex tables);
+        
+        <br>— design review, etc.
+        
+        <br>experience in communication design:
+        
+        <br>— branding;
+        
+        <br> — creation and preparation of printed materials (banners of various sizes, postcards, certificates, diplomas, etc.);
+        
+        <br>— visual design for social media (stories, posts, email newsletters);
+        
+        <br>— photo retouching, etc.
+        
+        <br>also good copywriting skills and AI prompting.</p>
+    </div>
+  </div>
+
+<!-- В конце body, перед закрывающим тегом -->
+<script src="cursor.js"></script>
+<script src="project.js"></script>
+
+  <div class="custom-cursor"></div>
+  <script src="cursor.js"></script>
+  <script src="gallery.js"></script>
+  
+<!-- Минималистичная галерея -->
+<div class="gallery-overlay">
+  <div class="gallery-content">
+      <!-- Изображение будет вставлено через JS -->
+  </div>
+  <div class="gallery-nav">
+      <button class="gallery-arrow prev">‹</button>
+      <button class="gallery-arrow next">›</button>
+      <div class="gallery-counter">1/12</div>
+  </div>
+</div>
+  
+</body>
+
+<div class="preloader">
+  <div class="preloader-pattern">
+    <!-- 31 точка для сетки 9x7 -->
+    <div class="preloader-dot preloader-dot-1"></div>
+    <div class="preloader-dot preloader-dot-2"></div>
+    <div class="preloader-dot preloader-dot-3"></div>
+    <div class="preloader-dot preloader-dot-4"></div>
+    <div class="preloader-dot preloader-dot-5"></div>
+    <div class="preloader-dot preloader-dot-6"></div>
+    <div class="preloader-dot preloader-dot-7"></div>
+    <div class="preloader-dot preloader-dot-8"></div>
+    <div class="preloader-dot preloader-dot-9"></div>
+    <div class="preloader-dot preloader-dot-10"></div>
+    <div class="preloader-dot preloader-dot-11"></div>
+    <div class="preloader-dot preloader-dot-12"></div>
+    <div class="preloader-dot preloader-dot-13"></div>
+    <div class="preloader-dot preloader-dot-14"></div>
+    <div class="preloader-dot preloader-dot-15"></div>
+    <div class="preloader-dot preloader-dot-16"></div>
+    <div class="preloader-dot preloader-dot-17"></div>
+    <div class="preloader-dot preloader-dot-18"></div>
+    <div class="preloader-dot preloader-dot-19"></div>
+    <div class="preloader-dot preloader-dot-20"></div>
+    <div class="preloader-dot preloader-dot-21"></div>
+    <div class="preloader-dot preloader-dot-22"></div>
+    <div class="preloader-dot preloader-dot-23"></div>
+    <div class="preloader-dot preloader-dot-24"></div>
+    <div class="preloader-dot preloader-dot-25"></div>
+    <div class="preloader-dot preloader-dot-26"></div>
+    <div class="preloader-dot preloader-dot-27"></div>
+    <div class="preloader-dot preloader-dot-28"></div>
+    <div class="preloader-dot preloader-dot-29"></div>
+    <div class="preloader-dot preloader-dot-30"></div>
+    <div class="preloader-dot preloader-dot-31"></div>
+    
+    <!-- Буква "e" -->
+    <div class="preloader-letter">e</div>
+  </div>
+</div>
+
+</html>
